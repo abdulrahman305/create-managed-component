@@ -49,7 +49,7 @@ export default function initTemplate(config: Config) {
   }
   fs.writeFileSync(
     `${namespace}/manifest.json`,
-    JSON.stringify(manifest, null, 2)
+    JSON.stringify(manifest, null, 2),
   )
   fs.writeFileSync(`${namespace}/.npmignore`, 'src')
   processDir(config)
@@ -66,7 +66,7 @@ function processDir(config: Config, subdir = '.') {
   const files = fs.readdirSync(templateDir)
   for (const file of files) {
     const src = path.resolve(templateDir, file)
-    const dest = path.resolve(targetDir, file)
+    const dest = path.resolve(targetDir, file).replace(/\.keep$/, '') // we suffix .npmignore file with `.keep` in order to prevent template files it mentions being not published to npm
     if (fs.lstatSync(src).isDirectory()) {
       processDir(config, subdir + '/' + path.basename(src))
     } else {
@@ -74,11 +74,11 @@ function processDir(config: Config, subdir = '.') {
       const replaced = data.replace(/{{ displayName }}/g, displayName as string)
       const replaced2 = replaced.replace(
         /{{ namespace }}/g,
-        namespace as string
+        namespace as string,
       )
       const replaced3 = replaced2.replace(
         /{{ description }}/g,
-        description as string
+        description as string,
       )
       fs.writeFileSync(dest, replaced3)
     }
